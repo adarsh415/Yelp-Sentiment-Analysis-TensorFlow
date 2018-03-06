@@ -9,7 +9,7 @@ import os
 
 vocabulary_size=50000  # size of vocabulary
 embedding_size=300   # size of embedding
-batch_size=128  # batch size
+batch_size=64  # batch size
 skip_window=1  # How many words to consider left and right
 num_skip=2  # How many time to reuse imput to generate label
 negative_sample=64 #how many negative example to sample
@@ -64,6 +64,7 @@ def word2vec(batch_gen):
         #tf.summary.scalar('loss',loss)
 
         optimizer=tf.train.GradientDescentOptimizer(learning_rate=LEARNING_RATE).minimize(loss)
+        make_dir('checkpoints')
 
 
     with tf.Session(graph=graph) as sess:
@@ -71,7 +72,7 @@ def word2vec(batch_gen):
         sess.run(tf.global_variables_initializer())
 
         total_loss=0.0 #we use this to calculate avarage loss
-        writer=tf.summary.FileWriter('/graphs/',sess.graph)
+        writer=tf.summary.FileWriter('./graphs/',sess.graph)
         # Create model saving operation
         saver=tf.train.Saver({"embedding":embedding})
 
@@ -84,7 +85,7 @@ def word2vec(batch_gen):
 
             if (index+1)% SKIP_STEP == 0:
 
-                embedding_name='yulp_review_step_'+str(index)+'.ckpt'
+                embedding_name= './'+'checkpoints'+'/'+'yulp_review_step_'+str(index)+'.ckpt'
                 model_checkpoint_path=os.path.join(os.getcwd(),embedding_name)
                 save_path=saver.save(sess,model_checkpoint_path)
                 print ('embedding saved in {}'.format(save_path))
@@ -93,6 +94,14 @@ def word2vec(batch_gen):
                 total_loss=0.0
         writer.close()
 
+
+def make_dir(name):
+
+    if not os.path.exists(os.path.join(os.getcwd(),name)):
+        os.mkdir(os.path.join(os.getcwd(),name))
+
+    else:
+        pass
 
 
 def main():

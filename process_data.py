@@ -3,21 +3,11 @@
 # create integer index
 
 
-
-
-
-import tensorflow as tf
 import numpy as np
 import pandas as pd
 from collections import Counter
-from nltk.corpus import stopwords
-from sklearn.preprocessing import OneHotEncoder
-
-import os
-import shutil
 
 import random
-import string
 
 import data_util
 from nltk import word_tokenize
@@ -29,7 +19,6 @@ VOCAB_SIZE=50000
 
 def build_words(filepath):
     df_frame=data_util.create_clean_dataframe(filepath)
-    #data_util.create_train_test_csv(filepath)
     data_util.create_complete_file(filepath)
     text_df=df_frame['text']
     words=text_df.apply(lambda x : word_tokenize(str(x)))
@@ -84,11 +73,11 @@ def genrate_batch(iterator,batch_size):
 
         yield center_batch,target_batch
 
-###
-#uncomment below lines to generate batch to train word2vec network
-###
+"""
+uncomment below lines to generate batch to train word2vec network
 
-#def process_data(vocab_size,batch_size,skip_window):
+
+def process_data(vocab_size,batch_size,skip_window):
     #words_token,_ = build_words(file_path)
     #voca=clean_data(words_token)
     #dictionary,_=build_vocab(voca,vocab_size)
@@ -97,7 +86,7 @@ def genrate_batch(iterator,batch_size):
     #del words_token
     #single_gen=generate_sample(index_words,skip_window)
     #return genrate_batch(single_gen,batch_size)
-
+"""
 
 def create_dictionary(filepath,vocab_size):
     words_token,df_data=build_words(filepath)
@@ -106,9 +95,17 @@ def create_dictionary(filepath,vocab_size):
 def create_train_input_csv(filepath):
     words,df_text=build_words(filepath)
     dictionary,_=build_vocab(words,VOCAB_SIZE)
-    df_text.loc[:,'text']=df_text.loc[:,'text'].apply(lambda x : convert_word_to_index(x.split(),dictionary))
+    new_data=pd.DataFrame()
+    new_data['stars'] = df_text.loc[:, 'stars']
+    new_data['as_num']=df_text.loc[:,'text'].apply(lambda x : convert_word_to_index(x.split(),dictionary))
+    new_data['seq_len']=df_text.loc[:,'text'].apply(lambda x: x.split()).apply(len)
 
-    data_util.create_train_test_csv_from_dataframe(df_text)
+    data_util.create_train_test_csv_from_dataframe(new_data)
+
+
+
+
+
 
 
 
